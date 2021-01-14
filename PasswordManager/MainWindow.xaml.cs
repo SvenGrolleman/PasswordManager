@@ -22,9 +22,12 @@ namespace PasswordManager
     /// </summary>
     public partial class MainWindow : Window
     {
+        UserControl _userControl;
         public MainWindow()
         {
             InitializeComponent();
+            var PasswordView = new PasswordListView();
+            this.MainGrid.Children.Add(PasswordView);
         }
     }
 }
