@@ -6,8 +6,10 @@ namespace PasswordManager.Database
 {
     internal class DatabaseSqlCommands
     {
-        private static readonly string _createTable =
-            "CREATE TABLE Passwords (PasswordEntryId INTEGER PRIMARY KEY, Website TEXT NOT NULL, Username TEXT NOT NULL, Password TEXT NOT NULL, IV TEXT NOT NULL) ";
+        private static readonly string _createPasswordsTable =
+            $"CREATE TABLE Passwords ({_passwordId} INTEGER PRIMARY KEY, {_website} TEXT NOT NULL, {_username} TEXT NOT NULL, {_password} TEXT NOT NULL, IV TEXT NOT NULL) ";
+        private static readonly string _createMainPasswordTable =
+            $"CREATE TABLE MainPassword ({_mainId} INTEGER PRIMARY KEY, {_mainPassword} TEXT NOT NULL, {_mainIV} TEXT NOT NULL)";
 
         private static readonly string _insertPasswordEntry =
             $"INSERT INTO Passwords({_website}, {_username}, {_password}, {_IV})" +
@@ -15,6 +17,9 @@ namespace PasswordManager.Database
         private static readonly string _insertPasswordEntries =
             $"INSERT INTO Passwords({_website}, {_username}, {_password}, {_IV})" +
             "VALUES";
+        private static readonly string _insertMainPassword =
+            $"INSERT INTO MainPassword({_mainPassword},{_mainIV})" +
+            $"VALUES(@{_mainPassword}, @{_mainIV})";
 
         private static readonly string _getPasswordEntry =
             "SELECT * " +
@@ -23,13 +28,25 @@ namespace PasswordManager.Database
         private static readonly string _getPasswordEntries =
             "SELECT * " +
             "FROM Passwords";
+        private static readonly string _getMainPassword =
+            "SELECT *" +
+            "FROM MainPassword" +
+            $"WHERE MainId = @{_mainId}";
+
         public readonly string UpdatePasswordEntryCommand =
             $"UPDATE Passwords SET {_website} = @{_website}, {_username} = @{_username}, {_password} = @{_password}, {_IV} = @{_IV} WHERE {_passwordId} = @{_passwordId}";
+        private static readonly string _updateMainPassword =
+            $"UPDATE MainPassword SET {_mainPassword} = @{_mainPassword}, {_mainIV} = @{_mainIV} WHERE {_mainId} = @{_mainId}";
 
         private static string _deletePasswordEntry =
             $"DELETE FROM Passwords WHERE {_passwordId} = @{_passwordId}";
         private static string _deletePasswordEntries =
             "DELETE FROM Passwords";
+
+        private const string _mainId = "MainId";
+        private const string _mainPassword = "Password";
+        private const string _mainIV = "MainIV";
+
 
         private const string _passwordId = "PasswordEntryId";
         private const string _website = "Website";
@@ -37,11 +54,21 @@ namespace PasswordManager.Database
         private const string _password = "Password";
         private const string _IV = "IV";
 
-        public SqliteCommand CreateTable(SqliteConnection conn)
+
+        public SqliteCommand CreatePasswordsTable(SqliteConnection conn)
         {
             return new SqliteCommand
             {
-                CommandText = _createTable,
+                CommandText = _createPasswordsTable,
+                Connection = conn,
+            };
+        }
+
+        public SqliteCommand CreateMainPasswordTable(SqliteConnection conn)
+        {
+            return new SqliteCommand
+            {
+                CommandText = _createMainPasswordTable,
                 Connection = conn,
             };
         }
@@ -81,6 +108,18 @@ namespace PasswordManager.Database
             return comm;
         }
 
+        public SqliteCommand InsertMainPassword(MainPassword mainPassword, SqliteConnection conn)
+        {
+            var comm = new SqliteCommand
+            {
+                CommandText = _insertMainPassword,                
+                Connection = conn
+            };
+            comm.Parameters.AddWithValue($"{_mainPassword}", mainPassword.Password);
+            comm.Parameters.AddWithValue($"{_mainIV}", mainPassword.Password);
+            return comm;
+        }
+
         public SqliteCommand GetPasswordEntry(int id, SqliteConnection conn)
         {
             var comm = new SqliteCommand
@@ -101,6 +140,17 @@ namespace PasswordManager.Database
             };
         }
 
+        public SqliteCommand GetMainPassword(SqliteConnection conn)
+        {
+            var comm =  new SqliteCommand
+            {
+                CommandText = _getMainPassword,
+                Connection = conn,
+            };
+            comm.Parameters.AddWithValue($"@{_mainId}", 1);
+            return comm;
+        }
+
         public SqliteCommand UpdatePasswordEntry(PasswordEntry entry, SqliteConnection conn)
         {
             var comm = new SqliteCommand
@@ -113,6 +163,18 @@ namespace PasswordManager.Database
             comm.Parameters.AddWithValue($"@{_username}", entry.Username);
             comm.Parameters.AddWithValue($"@{_password}", entry.Password);
             comm.Parameters.AddWithValue($"@{_IV}", entry.IV);
+            return comm;
+        }
+
+        public SqliteCommand UpdateMainPassword(MainPassword mainPassword, SqliteConnection conn)
+        {
+            var comm = new SqliteCommand
+            {
+                CommandText = _updateMainPassword,
+                Connection = conn,
+            };
+            comm.Parameters.AddWithValue($"@{_mainPassword}", mainPassword.Password);
+            comm.Parameters.AddWithValue($"@{_mainIV}", mainPassword.MainIV);
             return comm;
         }
 

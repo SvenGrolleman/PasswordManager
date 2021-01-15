@@ -1,4 +1,6 @@
 ﻿using PasswordManager.Database.Entities;
+using PasswordManager.EventsManager;
+using PasswordManager.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,13 +23,18 @@ namespace PasswordManager
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        UserControl _userControl;
+    {        
         public MainWindow()
         {
             InitializeComponent();
-            var PasswordView = new PasswordListView();
-            this.MainGrid.Children.Add(PasswordView);
+            var eventHandler = new PasswordManagerEventHandler();
+            eventHandler.EditPasswordClicked += (s, e) => CreateNewEditWindow(e.PasswordEntryModel);
+            MainGrid.Children.Add(new PasswordListView(eventHandler));
+        }
+
+        private void CreateNewEditWindow(PasswordEntryModel passwordEntryModel)
+        {
+            
         }
     }
 }

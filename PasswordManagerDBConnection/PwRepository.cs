@@ -21,10 +21,8 @@ namespace PasswordManager.Database
             {
                 if (!databaseExist(conn) && !conn.ConnectionString.Contains("Mode=Memory"))
                 {
-                    var comm = _commands.CreateTable(conn);
-                    conn.Open();
-                    comm.ExecuteNonQuery();
-                    conn.Close();
+                    CreatePasswordsTable();
+                    CreateMainPasswordTable();
                 }
             }
         }
@@ -34,12 +32,25 @@ namespace PasswordManager.Database
             return File.Exists(conn.DataSource);
         }
 
-        public int CreateTable()
+        public int CreatePasswordsTable()
         {
             int affectedRows = 0;
             using (var conn = new SqliteConnection(_connectionString))
             {
-                var comm = _commands.CreateTable(conn);
+                var comm = _commands.CreatePasswordsTable(conn);
+                conn.Open();
+                affectedRows = comm.ExecuteNonQuery();
+                conn.Close();
+            }
+            return affectedRows;
+        }
+
+        public int CreateMainPasswordTable()
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.CreateMainPasswordTable(conn);
                 conn.Open();
                 affectedRows = comm.ExecuteNonQuery();
                 conn.Close();
@@ -73,6 +84,18 @@ namespace PasswordManager.Database
             return affectedRows;
         }
 
+        public int InsertMainPassword(MainPassword mainPassword)
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.InsertMainPassword(mainPassword, conn);
+                conn.Open();
+                affectedRows = comm.ExecuteNonQuery();
+                conn.Close();
+            }
+            return affectedRows;
+        }
         public PasswordEntry GetPasswordEntry(int id)
         {
             var passwordEntry = new PasswordEntry()
@@ -121,6 +144,26 @@ namespace PasswordManager.Database
                 }
             }
             return passwordEntries;
+        }
+
+        public MainPassword GetMainPassword()
+        {
+
+            var mainPassword = new MainPassword();
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.GetMainPassword(conn);
+                using (var sqlReader = comm.ExecuteReader())
+                {
+                    mainPassword = new MainPassword
+                    {
+                        MainId = sqlReader.GetInt32(0),
+                        Password = sqlReader.GetString(1),
+                        MainIV = sqlReader.GetString(2),
+                    };
+                }
+            }
+            return mainPassword;
         }
 
         public int UpdatePasswordEntry(PasswordEntry entry)

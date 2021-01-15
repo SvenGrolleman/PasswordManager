@@ -36,7 +36,8 @@ namespace PasswordManager.Tests
 
             _repository = new PwRepository(_connectionString);
             _repository.Connection.Open();
-            _repository.CreateTable();            
+            _repository.CreatePasswordsTable();
+            _repository.CreateMainPasswordTable();
         }
 
         private void ResetPasswordsTable()

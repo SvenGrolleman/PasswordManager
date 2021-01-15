@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace PasswordManager.Models
 {
-    public class PasswordEntryListModel
+    public class PasswordListViewViewModel
     {
-        public ObservableCollection<PasswordEntryViewModel> Passwords { get; set; }
+        public ObservableCollection<PasswordListItemViewModel> Passwords { get; set; }
     }
 }
