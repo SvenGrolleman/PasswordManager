@@ -1,4 +1,4 @@
-﻿using PasswordManager.CommandBinding;
+﻿using PasswordManager.HelperClasses;
 using PasswordManager.Database.Entities;
 using PasswordManager.Encryption;
 using PasswordManager.EventsManager;

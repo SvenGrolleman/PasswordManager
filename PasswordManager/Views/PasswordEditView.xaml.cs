@@ -1,4 +1,7 @@
-﻿using System;
+﻿using PasswordManager.EventsManager;
+using PasswordManager.Models;
+using PasswordManager.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
@@ -18,9 +21,10 @@ namespace PasswordManager
     /// </summary>
     public partial class PasswordEditView : UserControl
     {
-        public PasswordEditView()
+        public PasswordEditView(PasswordEntryModel passwordEntryModel, PasswordManagerEventHandler eventHandler)
         {
             InitializeComponent();
+            this.DataContext = new PasswordEditViewViewModel(passwordEntryModel, eventHandler);
         }
     }
 }

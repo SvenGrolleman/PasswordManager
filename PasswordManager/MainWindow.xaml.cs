@@ -28,13 +28,8 @@ namespace PasswordManager
         {
             InitializeComponent();
             var eventHandler = new PasswordManagerEventHandler();
-            eventHandler.EditPasswordClicked += (s, e) => CreateNewEditWindow(e.PasswordEntryModel);
-            MainGrid.Children.Add(new PasswordListView(eventHandler));
-        }
-
-        private void CreateNewEditWindow(PasswordEntryModel passwordEntryModel)
-        {
-            
+            var viewModel = new MainWindowViewModel(eventHandler);
+            this.DataContext = viewModel;
         }
     }
 }

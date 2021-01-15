@@ -5,8 +5,117 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid x:Name="MainGrid">
-        
+        Title="Password Manager" Height="450" MinWidth="750" Width="750">
+    <Window.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="PrettyButton">            
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Content" Value="Does this work"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="12" Color="Gray" Direction="45" Opacity="0.8" ShadowDepth="4"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border CornerRadius="5" Background="{TemplateBinding Background}">
+                            <ContentPresenter Content="{TemplateBinding Content}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsEnabled" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background" Value="#797979"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="False"/>
+                                    <Condition Property="IsEnabled" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <MultiTrigger.Setters>
+                                    <Setter Property="Background" Value="#373737"/>
+                                </MultiTrigger.Setters>
+                            </MultiTrigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="Gainsboro"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="OptionMarkFocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="14,0,0,0" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <TextBlock Name="MainPasswordTxt" Text="{Binding MainPassword}" HorizontalAlignment="Stretch" Width="200"/>
+            <Button Width="200" HorizontalAlignment="Right" Command="{Binding VerifyPassword}" Margin="5" Style="{StaticResource PrettyButton}">
+                <Button.Content>
+                    <TextBlock Text="{Binding VerifyButtonText}" HorizontalAlignment="Center"/>
+                </Button.Content>
+            </Button>
+        </Grid>
+        <Grid Grid.Row="1">
+            <StackPanel Orientation="Horizontal">
+                <Button Width="200" HorizontalAlignment="Left" Margin="5" Style="{StaticResource PrettyButton}" Command="{Binding GeneratePassword}" Height="30">
+                    <Button.Content>
+                        <TextBlock Text="Generate Password" HorizontalAlignment="Center"/>
+                    </Button.Content>
+                </Button>
+                <Grid Width="180">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                <CheckBox IsChecked="{Binding LowerCase}" VerticalAlignment="Center" Content="LowerCase"/>
+                    <CheckBox Style="{DynamicResource CheckBoxStyle1}" IsChecked="{Binding UpperCase}" VerticalAlignment="Center" Content="UpperCase" Grid.Row="1"/>
+                    <CheckBox IsChecked="{Binding Numbers}" VerticalAlignment="Center" Content="Numbers" Grid.Row="2"/>
+                    <CheckBox IsChecked="{Binding Characters}" VerticalAlignment="Center" Content="Characters" Grid.Row="3"/>
+                    <Label Content="Length : " Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <Slider Minimum="10" Maximum="50" Grid.Column="1" Grid.Row="2" TickFrequency="1" IsSnapToTickEnabled="True" x:Name="LengthSlider" Value="{Binding Length}"/>
+                    <TextBlock Text="{Binding ElementName=LengthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"/>
+                </Grid>                
+                <Border BorderThickness="2" BorderBrush="#373737" Height="30" CornerRadius="5" Width="355">
+                    <TextBox Text="{Binding GeneratedPassword}" HorizontalAlignment="Center" IsReadOnly="True" Width="355" Background="Gainsboro"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="2" Name="MainContent">
+            <ContentControl Content="{Binding CurrentViewModel}"/>
+        </Grid>
+
     </Grid>
 </Window>

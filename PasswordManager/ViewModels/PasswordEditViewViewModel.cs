@@ -1,4 +1,5 @@
-﻿using PasswordManager.CommandBinding;
+﻿using PasswordManager.HelperClasses;
+using PasswordManager.EventsManager;
 using PasswordManager.Models;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,12 @@ namespace PasswordManager.ViewModels
         public PasswordEntryModel PasswordEntryModel { get; set; }
 
         public CommandBinder Commit;
+        private readonly PasswordManagerEventHandler _eventHandler;
 
-        public PasswordEditViewViewModel(PasswordEntryModel entryModel)
+        public PasswordEditViewViewModel(PasswordEntryModel passwordEntryModel, PasswordManagerEventHandler eventHandler)
         {
-            PasswordEntryModel = entryModel;
+            PasswordEntryModel = passwordEntryModel;
+            _eventHandler = eventHandler;
         }
     }
 }
