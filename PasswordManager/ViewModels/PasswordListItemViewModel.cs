@@ -18,13 +18,7 @@ namespace PasswordManager.Models
         public CommandBinder CopyPassword { get; private set; }
         public CommandBinder EditPassword { get; private set; }
 
-        public PasswordListItemViewModel(PasswordManagerEventHandler eventHandler)
-        {
-            _eventHandler = eventHandler;
-            SetUpCommands();
-        }
-
-        public PasswordListItemViewModel(byte[] Key, PasswordEntry passwordEntry, PasswordManagerEventHandler eventHandler)
+        public PasswordListItemViewModel(PasswordManagerEventHandler eventHandler, byte[] Key, PasswordEntry passwordEntry)
         {
             _eventHandler = eventHandler;
             PasswordEntryModel = new PasswordEntryModel

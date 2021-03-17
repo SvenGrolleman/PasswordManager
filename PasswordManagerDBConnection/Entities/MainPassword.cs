@@ -10,6 +10,6 @@ namespace PasswordManager.Database.Entities
     {
         public int MainId { get; set; }
         public string Password { get; set; }
-        public string MainIV { get; set; }
+        public string MainSalt { get; set; }
     }
 }

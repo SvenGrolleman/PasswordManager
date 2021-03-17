@@ -6,49 +6,7 @@
         xmlns:local="clr-namespace:PasswordManager"
         mc:Ignorable="d"
         Title="Password Manager" Height="450" MinWidth="750" Width="750">
-    <Window.Resources>
-        <Style TargetType="{x:Type Button}" x:Key="PrettyButton">            
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Content" Value="Does this work"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="12" Color="Gray" Direction="45" Opacity="0.8" ShadowDepth="4"/>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type Button}">
-                        <Border CornerRadius="5" Background="{TemplateBinding Background}">
-                            <ContentPresenter Content="{TemplateBinding Content}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True"/>
-                                    <Condition Property="IsEnabled" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <MultiTrigger.Setters>
-                                    <Setter Property="Background" Value="#797979"/>
-                                </MultiTrigger.Setters>
-                            </MultiTrigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="False"/>
-                                    <Condition Property="IsEnabled" Value="True"/>
-                                </MultiTrigger.Conditions>
-                                <MultiTrigger.Setters>
-                                    <Setter Property="Background" Value="#373737"/>
-                                </MultiTrigger.Setters>
-                            </MultiTrigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="Gainsboro"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+    <Window.Resources>        
         <Style x:Key="FocusVisual">
             <Setter Property="Control.Template">
                 <Setter.Value>
@@ -75,8 +33,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid>
-            <TextBlock Name="MainPasswordTxt" Text="{Binding MainPassword}" HorizontalAlignment="Stretch" Width="200"/>
-            <Button Width="200" HorizontalAlignment="Right" Command="{Binding VerifyPassword}" Margin="5" Style="{StaticResource PrettyButton}">
+            <Border BorderThickness="2" BorderBrush="#373737" Height="30" CornerRadius="5" Width="200">
+                <TextBox Name="MainPasswordTxt" Text="{Binding MainPassword}" HorizontalAlignment="Stretch" Width="200"/>
+            </Border>
+            <Button Width="200" HorizontalAlignment="Right" Command="{Binding VerifyPassword}" Margin="5" Style="{StaticResource PrettyButton}" IsEnabled="{Binding EnableButton}">
                 <Button.Content>
                     <TextBlock Text="{Binding VerifyButtonText}" HorizontalAlignment="Center"/>
                 </Button.Content>

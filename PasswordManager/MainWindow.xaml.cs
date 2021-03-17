@@ -1,21 +1,7 @@
-﻿using PasswordManager.Database.Entities;
+﻿using PasswordManager.Database;
 using PasswordManager.EventsManager;
-using PasswordManager.Models;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Configuration;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PasswordManager
 {
@@ -27,8 +13,9 @@ namespace PasswordManager
         public MainWindow()
         {
             InitializeComponent();
+            var repository = new PwRepository(ConfigurationManager.ConnectionStrings["PasswordManager"].ConnectionString);
             var eventHandler = new PasswordManagerEventHandler();
-            var viewModel = new MainWindowViewModel(eventHandler);
+            var viewModel = new MainWindowViewModel(eventHandler, repository);
             this.DataContext = viewModel;
         }
     }

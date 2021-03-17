@@ -6,20 +6,52 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace PasswordManager.ViewModels
 {
-    public class PasswordEditViewViewModel
+    public class PasswordEditViewViewModel : INotifyPropertyChanged
     {
         public PasswordEntryModel PasswordEntryModel { get; set; }
+        private string _confirmButtonText;
+
+        public string ConfirmButtonText
+        {
+            get { return _confirmButtonText; }
+            set
+            {
+                if (_confirmButtonText != value)
+                {
+                    _confirmButtonText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         public CommandBinder Commit;
         private readonly PasswordManagerEventHandler _eventHandler;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public PasswordEditViewViewModel(PasswordEntryModel passwordEntryModel, PasswordManagerEventHandler eventHandler)
         {
             PasswordEntryModel = passwordEntryModel;
             _eventHandler = eventHandler;
+            if (PasswordEntryModel.PasswordEntryId == 0)
+            {
+                ConfirmButtonText = "Add password";
+            }
+            else
+            {
+                ConfirmButtonText = "Save Changes";
+            }
+        }
+
+        public void OnPropertyChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

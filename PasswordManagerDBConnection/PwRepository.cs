@@ -96,6 +96,7 @@ namespace PasswordManager.Database
             }
             return affectedRows;
         }
+
         public PasswordEntry GetPasswordEntry(int id)
         {
             var passwordEntry = new PasswordEntry()
@@ -152,16 +153,25 @@ namespace PasswordManager.Database
             var mainPassword = new MainPassword();
             using (var conn = new SqliteConnection(_connectionString))
             {
+                conn.Open();
                 var comm = _commands.GetMainPassword(conn);
+
                 using (var sqlReader = comm.ExecuteReader())
                 {
-                    mainPassword = new MainPassword
+                    if (sqlReader.HasRows)
                     {
-                        MainId = sqlReader.GetInt32(0),
-                        Password = sqlReader.GetString(1),
-                        MainIV = sqlReader.GetString(2),
-                    };
+                        while (sqlReader.Read())
+                        {
+                            mainPassword = new MainPassword
+                            {
+                                MainId = sqlReader.GetInt16(0),
+                                Password = sqlReader.GetString(1),
+                                MainSalt = sqlReader.GetString(2),
+                            };
+                        }
+                    }
                 }
+                conn.Close();
             }
             return mainPassword;
         }

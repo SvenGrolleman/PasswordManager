@@ -11,7 +11,6 @@ namespace PasswordManager.CLI
         {
             var connectionString = ConfigurationManager.ConnectionStrings["PasswordManager"].ConnectionString;
             var test = new PwRepository(connectionString);
-            var entries = new List<PasswordEntry>();
         }
     }
 }

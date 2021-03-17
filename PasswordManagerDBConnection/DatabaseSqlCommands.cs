@@ -9,7 +9,7 @@ namespace PasswordManager.Database
         private static readonly string _createPasswordsTable =
             $"CREATE TABLE Passwords ({_passwordId} INTEGER PRIMARY KEY, {_website} TEXT NOT NULL, {_username} TEXT NOT NULL, {_password} TEXT NOT NULL, IV TEXT NOT NULL) ";
         private static readonly string _createMainPasswordTable =
-            $"CREATE TABLE MainPassword ({_mainId} INTEGER PRIMARY KEY, {_mainPassword} TEXT NOT NULL, {_mainIV} TEXT NOT NULL)";
+            $"CREATE TABLE MainPassword ({_mainId} INTEGER PRIMARY KEY, {_mainPassword} TEXT NOT NULL, {_mainSalt} TEXT NOT NULL)";
 
         private static readonly string _insertPasswordEntry =
             $"INSERT INTO Passwords({_website}, {_username}, {_password}, {_IV})" +
@@ -18,8 +18,8 @@ namespace PasswordManager.Database
             $"INSERT INTO Passwords({_website}, {_username}, {_password}, {_IV})" +
             "VALUES";
         private static readonly string _insertMainPassword =
-            $"INSERT INTO MainPassword({_mainPassword},{_mainIV})" +
-            $"VALUES(@{_mainPassword}, @{_mainIV})";
+            $"INSERT INTO MainPassword({_mainPassword},{_mainSalt})" +
+            $"VALUES(@{_mainPassword}, @{_mainSalt})";
 
         private static readonly string _getPasswordEntry =
             "SELECT * " +
@@ -29,14 +29,14 @@ namespace PasswordManager.Database
             "SELECT * " +
             "FROM Passwords";
         private static readonly string _getMainPassword =
-            "SELECT *" +
-            "FROM MainPassword" +
+            "SELECT * " +
+            "FROM MainPassword " +
             $"WHERE MainId = @{_mainId}";
 
         public readonly string UpdatePasswordEntryCommand =
             $"UPDATE Passwords SET {_website} = @{_website}, {_username} = @{_username}, {_password} = @{_password}, {_IV} = @{_IV} WHERE {_passwordId} = @{_passwordId}";
         private static readonly string _updateMainPassword =
-            $"UPDATE MainPassword SET {_mainPassword} = @{_mainPassword}, {_mainIV} = @{_mainIV} WHERE {_mainId} = @{_mainId}";
+            $"UPDATE MainPassword SET {_mainPassword} = @{_mainPassword}, {_mainSalt} = @{_mainSalt} WHERE {_mainId} = @{_mainId}";
 
         private static string _deletePasswordEntry =
             $"DELETE FROM Passwords WHERE {_passwordId} = @{_passwordId}";
@@ -45,7 +45,7 @@ namespace PasswordManager.Database
 
         private const string _mainId = "MainId";
         private const string _mainPassword = "Password";
-        private const string _mainIV = "MainIV";
+        private const string _mainSalt = "MainSalt";
 
 
         private const string _passwordId = "PasswordEntryId";
@@ -116,7 +116,7 @@ namespace PasswordManager.Database
                 Connection = conn
             };
             comm.Parameters.AddWithValue($"{_mainPassword}", mainPassword.Password);
-            comm.Parameters.AddWithValue($"{_mainIV}", mainPassword.Password);
+            comm.Parameters.AddWithValue($"{_mainSalt}", mainPassword.MainSalt);
             return comm;
         }
 
@@ -174,7 +174,7 @@ namespace PasswordManager.Database
                 Connection = conn,
             };
             comm.Parameters.AddWithValue($"@{_mainPassword}", mainPassword.Password);
-            comm.Parameters.AddWithValue($"@{_mainIV}", mainPassword.MainIV);
+            comm.Parameters.AddWithValue($"@{_mainSalt}", mainPassword.MainSalt);
             return comm;
         }
 

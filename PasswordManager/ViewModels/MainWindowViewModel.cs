@@ -1,4 +1,8 @@
-﻿using PasswordManager.EventsManager;
+﻿using PasswordManager.Database;
+using PasswordManager.Database.Entities;
+using PasswordManager.Encryption;
+using PasswordManager.EventsManager;
+using PasswordManager.Extensions;
 using PasswordManager.HelperClasses;
 using PasswordManager.Models;
 using System;
@@ -11,12 +15,11 @@ namespace PasswordManager
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        UserControl _passwordListView;
-        UserControl _passwordEditView;
-
         PasswordManagerEventHandler _eventHandler;
 
-        public string VerifyButtonText { get; set; }
+        private readonly IPwRepository _repository;
+
+        public string VerifyButtonText { get; private set; }
         private string _generatedPassword;
         public string GeneratedPassword
         {
@@ -37,8 +40,37 @@ namespace PasswordManager
         public bool UpperCase { get; set; }
         public bool Numbers { get; set; }
         public bool Characters { get; set; }
+        private bool _enableButton;
+
+        public bool EnableButton
+        {
+            get { return _enableButton; }
+            set
+            {
+                if (_enableButton != value)
+                {
+                    _enableButton = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _mainPassword;
+        public string MainPassword
+        {
+            get { return _mainPassword; }
+            set
+            {
+                if (_mainPassword != value)
+                {
+                    _mainPassword = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public CommandBinder GeneratePassword { get; private set; }
+        public CommandBinder VerifyPassword { get; private set; }
 
         private ContentControl _currentViewModel;
         public ContentControl CurrentViewModel
@@ -61,14 +93,28 @@ namespace PasswordManager
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public MainWindowViewModel(PasswordManagerEventHandler eventHandler)
+        public MainWindowViewModel(PasswordManagerEventHandler eventHandler, IPwRepository repository)
         {
+            _repository = repository;
             _eventHandler = eventHandler;
-            _passwordListView = new PasswordListView(eventHandler);
-            CurrentViewModel = _passwordListView;
             Length = 10;
+            EnableButton = true;
             SetUpHander();
             SetUpCommands();
+            SetUpVerifyButtonText();
+        }
+
+        private void SetUpVerifyButtonText()
+        {
+            var mainPassword = _repository.GetMainPassword();
+            if (mainPassword.MainId == 0)
+            {
+                VerifyButtonText = "Set mainpassword";
+            }
+            else
+            {
+                VerifyButtonText = "Log in";
+            }
         }
 
         private void SetUpHander()
@@ -79,6 +125,7 @@ namespace PasswordManager
         private void SetUpCommands()
         {
             GeneratePassword = new CommandBinder(OnGeneratePassword);
+            VerifyPassword = new CommandBinder(OnVerifyPassword);
         }
 
         private void OnGeneratePassword()
@@ -117,7 +164,8 @@ namespace PasswordManager
             if (eligibleChars.Count == 0)
             {
                 GeneratedPassword = $"Please select at least one eligible set of characters";
-            } else
+            }
+            else
             {
                 GeneratedPassword = "";
                 var rand = new Random();
@@ -134,6 +182,55 @@ namespace PasswordManager
         private void OnEditPasswordClick(PasswordEntryModel passwordEntryModel)
         {
             CurrentViewModel = new PasswordEditView(passwordEntryModel, _eventHandler);
+        }
+
+        private void OnVerifyPassword()
+        {
+            var storedMainPassword = _repository.GetMainPassword();
+            if (storedMainPassword.MainId == 0)
+            {
+                if (!string.IsNullOrEmpty(_mainPassword))
+                {
+                    var saltByteArray = RfcEncryptor.GenerateSalt();
+                    var encryptedByteArray = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray);
+                    var mainPassword = new MainPassword()
+                    {
+                        Password = encryptedByteArray.ToBase64FromByteArray(),
+                        MainSalt = saltByteArray.ToBase64FromByteArray(),
+                    };
+                    var succes = _repository.InsertMainPassword(mainPassword);
+                    if (succes > 0)
+                    {
+                        EnableButton = false;
+                        var key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray, 1000);
+                        CurrentViewModel = new PasswordListView(_eventHandler, key, _repository);
+                        MainPassword = "Main password succesfully set!";
+                    }
+                }
+                else
+                {
+                    MainPassword = "Please no empty string.";
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(_mainPassword))
+                {
+                    var saltByteArray = storedMainPassword.MainSalt;
+                    var encryptedByteArray = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64());
+                    if (ByteArrayComparer.CompareByteArrays(storedMainPassword.Password.ToByteArrayFromBase64(), encryptedByteArray))
+                    {
+                        EnableButton = false;
+                        var key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64(), 1000);
+                        CurrentViewModel = new PasswordListView(_eventHandler, key, _repository);
+                        MainPassword = "Succesfully verified!";
+                    }
+                    else
+                    {
+                        MainPassword = "Failed to verify.";
+                    }
+                }
+            }
         }
 
         public void OnPropertyChanged([CallerMemberName] string name = null)
