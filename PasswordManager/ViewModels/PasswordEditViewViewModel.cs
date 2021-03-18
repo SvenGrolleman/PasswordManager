@@ -14,8 +14,8 @@ namespace PasswordManager.ViewModels
     public class PasswordEditViewViewModel : INotifyPropertyChanged
     {
         public PasswordEntryModel PasswordEntryModel { get; set; }
-        private string _confirmButtonText;
 
+        private string _confirmButtonText;
         public string ConfirmButtonText
         {
             get { return _confirmButtonText; }
@@ -30,7 +30,8 @@ namespace PasswordManager.ViewModels
         }
 
 
-        public CommandBinder Commit;
+        public CommandBinder CommitPasswordEntry { get; private set; }
+        public CommandBinder CancelPasswordEntry { get; private set;}
         private readonly PasswordManagerEventHandler _eventHandler;
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -47,6 +48,24 @@ namespace PasswordManager.ViewModels
             {
                 ConfirmButtonText = "Save Changes";
             }
+            SetupCommands();
+
+        }
+
+        private void SetupCommands()
+        {
+            CommitPasswordEntry = new CommandBinder(OnCommit);
+            CancelPasswordEntry = new CommandBinder(OnCancel);
+        }
+
+        private void OnCommit()
+        {
+            _eventHandler.OnCommitPassword(this, PasswordEntryModel);
+        }
+
+        private void OnCancel()
+        {
+            _eventHandler.OnCancel(this);
         }
 
         public void OnPropertyChanged([CallerMemberName] string name = null)

@@ -18,7 +18,7 @@ namespace PasswordManager
         PasswordManagerEventHandler _eventHandler;
 
         private readonly IPwRepository _repository;
-
+        private byte[] _key;
         public string VerifyButtonText { get; private set; }
         private string _generatedPassword;
         public string GeneratedPassword
@@ -102,6 +102,51 @@ namespace PasswordManager
             SetUpHander();
             SetUpCommands();
             SetUpVerifyButtonText();
+            SetUpEventListeners();
+        }
+
+        private void SetUpEventListeners()
+        {
+            _eventHandler.Cancel += (s,e) => EditPasswordEntryCanceled();
+            _eventHandler.CommitPassword += (s, e) => EditPasswordEntryCommited(e.PasswordEntryModel);
+        }
+
+        private void EditPasswordEntryCommited(PasswordEntryModel passwordEntryModel)
+        {
+            if (passwordEntryModel.PasswordEntryId == 0)
+            {
+                var IV = AESEncryptor.GetIV();
+                var encryptedPassword = AESEncryptor.EncryptStringToBytes(passwordEntryModel.Password.ToByteArrayFromString(), _key, IV);
+                var passwordEntry = new PasswordEntry()
+                {
+                    Username = passwordEntryModel.Username,
+                    Website = passwordEntryModel.Website,
+                    IV = IV.ToBase64FromByteArray(),
+                    Password = encryptedPassword.ToBase64FromByteArray(),
+                };
+                _repository.InsertPasswordEntry(passwordEntry);
+                CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
+            }
+            else
+            {
+                var IV = AESEncryptor.GetIV();
+                var encryptedPassword = AESEncryptor.EncryptStringToBytes(passwordEntryModel.Password.ToByteArrayFromString(), _key, IV);
+                var passwordEntry = new PasswordEntry()
+                {
+                    PasswordEntryId = passwordEntryModel.PasswordEntryId,
+                    Username = passwordEntryModel.Username,
+                    Website = passwordEntryModel.Website,
+                    IV = IV.ToBase64FromByteArray(),
+                    Password = encryptedPassword.ToBase64FromByteArray(),
+                };
+                _repository.UpdatePasswordEntry(passwordEntry);
+                CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
+            }
+        }
+
+        private void EditPasswordEntryCanceled()
+        {
+            CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
         }
 
         private void SetUpVerifyButtonText()
@@ -202,8 +247,8 @@ namespace PasswordManager
                     if (succes > 0)
                     {
                         EnableButton = false;
-                        var key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray, 1000);
-                        CurrentViewModel = new PasswordListView(_eventHandler, key, _repository);
+                        _key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray, 1000);
+                        CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
                         MainPassword = "Main password succesfully set!";
                     }
                 }
@@ -221,8 +266,8 @@ namespace PasswordManager
                     if (ByteArrayComparer.CompareByteArrays(storedMainPassword.Password.ToByteArrayFromBase64(), encryptedByteArray))
                     {
                         EnableButton = false;
-                        var key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64(), 1000);
-                        CurrentViewModel = new PasswordListView(_eventHandler, key, _repository);
+                        _key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64(), 1000);
+                        CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
                         MainPassword = "Succesfully verified!";
                     }
                     else

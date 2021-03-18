@@ -6,6 +6,12 @@ namespace PasswordManager.Encryption
 {
     public static class AESEncryptor
     {
+        public static byte[] GetIV()
+        {
+            using var AesAlg = Aes.Create();
+            AesAlg.GenerateIV();
+            return AesAlg.IV;
+        }
         public static byte[] EncryptStringToBytes(byte[] pw, byte[] key, byte[] IV)
         {
             using var AesAlg = Aes.Create();
@@ -43,7 +49,6 @@ namespace PasswordManager.Encryption
             using var AesAlg = Aes.Create();
             AesAlg.Key = key;
             AesAlg.IV = IV;
-
             var decryptor = AesAlg.CreateDecryptor(AesAlg.Key, AesAlg.IV);
 
             using var stream = new MemoryStream();

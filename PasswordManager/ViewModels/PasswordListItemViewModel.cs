@@ -25,8 +25,8 @@ namespace PasswordManager.Models
             {
                 PasswordEntryId = passwordEntry.PasswordEntryId,
                 Website = passwordEntry.Website,
-                Username = AESEncryptor.DecryptBytesToString(passwordEntry.Username.ToByteArrayFromString(), Key, passwordEntry.IV.ToByteArrayFromBase64()).ToStringFromByteArray(),
-                Password = AESEncryptor.DecryptBytesToString(passwordEntry.Password.ToByteArrayFromString(), Key, passwordEntry.IV.ToByteArrayFromBase64()).ToStringFromByteArray(),
+                Username = passwordEntry.Username,
+                Password = AESEncryptor.DecryptBytesToString(passwordEntry.Password.ToByteArrayFromBase64(), Key, passwordEntry.IV.ToByteArrayFromBase64()).ToStringFromByteArray(),
             };
             SetUpCommands();
         }

@@ -11,15 +11,21 @@ namespace PasswordManager.EventsManager
     {
         public event EventHandler<PasswordEntryEventArgs> EditPasswordClicked;
         public event EventHandler<PasswordEntryEventArgs> CommitPassword;
+        public event EventHandler Cancel;
 
         public void OnEditPasswordClicked(object sender, PasswordEntryModel passwordEntry)
         {
             EditPasswordClicked?.Invoke(sender, new PasswordEntryEventArgs { PasswordEntryModel = passwordEntry });
         }
 
-        public void OnCommitPasswrd(object sender, PasswordEntryModel passwordEntry)
+        public void OnCommitPassword(object sender, PasswordEntryModel passwordEntry)
         {
             CommitPassword?.Invoke(sender, new PasswordEntryEventArgs { PasswordEntryModel = passwordEntry });
+        }
+
+        public void OnCancel(object sender)
+        {
+            Cancel?.Invoke(sender, null);
         }
     }
 }
