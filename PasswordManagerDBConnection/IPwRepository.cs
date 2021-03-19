@@ -7,6 +7,7 @@ namespace PasswordManager.Database
     {
         int DeletePasswordEntries();
         int DeletePasswordEntry(PasswordEntry entry);
+        int DeletePasswordEntry(int passwordEntryId);
         MainPassword GetMainPassword();
         IEnumerable<PasswordEntry> GetPasswordEntries();
         PasswordEntry GetPasswordEntry(int id);

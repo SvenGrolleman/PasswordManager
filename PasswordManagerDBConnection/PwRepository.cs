@@ -234,6 +234,20 @@ namespace PasswordManager.Database
             return affectedRows;
         }
 
+        public int DeletePasswordEntry(int passwordEntryId)
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.DeletePasswordEntry(passwordEntryId, conn);
+                conn.Open();
+                affectedRows = comm.ExecuteNonQuery();
+                conn.Close();
+            }
+
+            return affectedRows;
+        }
+
         public int DeletePasswordEntries()
         {
             int affectedRows = 0;

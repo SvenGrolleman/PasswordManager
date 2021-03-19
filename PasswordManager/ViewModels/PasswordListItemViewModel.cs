@@ -16,7 +16,8 @@ namespace PasswordManager.Models
 
         public CommandBinder CopyUsername { get; private set; }
         public CommandBinder CopyPassword { get; private set; }
-        public CommandBinder EditPassword { get; private set; }
+        public CommandBinder EditPasswordEntry { get; private set; }
+        public CommandBinder DeletePasswordEntry { get; private set; }
 
         public PasswordListItemViewModel(PasswordManagerEventHandler eventHandler, byte[] Key, PasswordEntry passwordEntry)
         {
@@ -35,7 +36,8 @@ namespace PasswordManager.Models
         {
             CopyUsername = new CommandBinder(OnCopyUsername);
             CopyPassword = new CommandBinder(OnCopyPassword);
-            EditPassword = new CommandBinder(OnEditPassword);
+            EditPasswordEntry = new CommandBinder(OnEditPasswordEntry);
+            DeletePasswordEntry = new CommandBinder(OnDeletePasswordEntry);
         }
 
         public void OnCopyUsername()
@@ -48,9 +50,14 @@ namespace PasswordManager.Models
             Clipboard.SetText(PasswordEntryModel.Password);
         }
 
-        public void OnEditPassword()
+        public void OnEditPasswordEntry()
         {
-            _eventHandler.OnEditPasswordClicked(this, PasswordEntryModel);
+            _eventHandler.OnEditPasswordEntryClicked(this, PasswordEntryModel);
+        }
+
+        public void OnDeletePasswordEntry()
+        {
+            _eventHandler.OnDeletePasswordEntryClicked(this, PasswordEntryModel);
         }
     }
 }

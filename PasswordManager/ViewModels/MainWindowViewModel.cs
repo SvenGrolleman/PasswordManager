@@ -99,7 +99,6 @@ namespace PasswordManager
             _eventHandler = eventHandler;
             Length = 10;
             EnableButton = true;
-            SetUpHander();
             SetUpCommands();
             SetUpVerifyButtonText();
             SetUpEventListeners();
@@ -107,8 +106,16 @@ namespace PasswordManager
 
         private void SetUpEventListeners()
         {
-            _eventHandler.Cancel += (s,e) => EditPasswordEntryCanceled();
+            _eventHandler.Cancel += (s, e) => EditPasswordEntryCanceled();
             _eventHandler.CommitPassword += (s, e) => EditPasswordEntryCommited(e.PasswordEntryModel);
+            _eventHandler.DeletePasswordEntry += (s, e) => DeletePasswordEntry(e.PasswordEntryModel);
+            _eventHandler.EditPasswordEntryClicked += (s, e) => OnEditPasswordEntryClick(e.PasswordEntryModel);
+        }
+
+        private void DeletePasswordEntry(PasswordEntryModel passwordEntryModel)
+        {
+            _repository.DeletePasswordEntry(passwordEntryModel.PasswordEntryId);
+            CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
         }
 
         private void EditPasswordEntryCommited(PasswordEntryModel passwordEntryModel)
@@ -160,11 +167,6 @@ namespace PasswordManager
             {
                 VerifyButtonText = "Log in";
             }
-        }
-
-        private void SetUpHander()
-        {
-            _eventHandler.EditPasswordClicked += (s, e) => OnEditPasswordClick(e.PasswordEntryModel);
         }
 
         private void SetUpCommands()
@@ -225,8 +227,8 @@ namespace PasswordManager
             _eventHandler.OnPasswordGenerated(this, GeneratedPassword);
         }
 
-        private void OnEditPasswordClick(PasswordEntryModel passwordEntryModel)
-        {            
+        private void OnEditPasswordEntryClick(PasswordEntryModel passwordEntryModel)
+        {
             CurrentViewModel = new PasswordEditView(passwordEntryModel, _eventHandler);
         }
 

@@ -37,7 +37,7 @@ namespace PasswordManager.Models
 
         private void OnAddPasswordEntry()
         {
-            _eventHandler.OnEditPasswordClicked(this, new PasswordEntryModel());
+            _eventHandler.OnEditPasswordEntryClicked(this, new PasswordEntryModel());
         }
 
         private void SetUpPasswords(byte[] key)
