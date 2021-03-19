@@ -11,7 +11,7 @@ namespace PasswordManager.CLI
     {
         static void Main(string[] args)
         {
-
+            System.Console.WriteLine("test");
         }
     }
 }
