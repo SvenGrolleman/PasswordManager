@@ -15,4 +15,9 @@ namespace PasswordManager.EventsManager
     {
         public PasswordEntryModel PasswordEntryModel { get; set; }
     }
+
+    public class GenereratedPasswordEventArgs : EventArgs
+    {
+        public string GeneratedPassword { get; set; }
+    }
 }

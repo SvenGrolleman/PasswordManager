@@ -49,7 +49,13 @@ namespace PasswordManager.ViewModels
                 ConfirmButtonText = "Save Changes";
             }
             SetupCommands();
+            _eventHandler.PasswordGenerated += (s, e) => SetPassword(e.GeneratedPassword);
 
+        }
+
+        private void SetPassword(string generatedPassword)
+        {
+            PasswordEntryModel.Password = generatedPassword;
         }
 
         private void SetupCommands()

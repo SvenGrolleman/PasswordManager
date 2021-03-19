@@ -222,10 +222,11 @@ namespace PasswordManager
                     GeneratedPassword += eligibleChars[next];
                 }
             }
+            _eventHandler.OnPasswordGenerated(this, GeneratedPassword);
         }
 
         private void OnEditPasswordClick(PasswordEntryModel passwordEntryModel)
-        {
+        {            
             CurrentViewModel = new PasswordEditView(passwordEntryModel, _eventHandler);
         }
 
