@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PasswordManager.Database.Entities
 {
-    public class MainPassword : CommonBase
+    public class MainPassword
     {
         public int MainId { get; set; }
         public string Password { get; set; }

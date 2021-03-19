@@ -3,14 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PasswordManager.Database.Entities
 {
-    public class PasswordEntry : CommonBase, IEquatable<PasswordEntry>
+    public class PasswordEntry : IEquatable<PasswordEntry>
     {
         public int PasswordEntryId { get; set; }
         public string Website { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-
-
         public string IV { get; set; }
 
         public override bool Equals(object obj)
