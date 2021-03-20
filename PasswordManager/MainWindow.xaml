@@ -5,27 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordManager"
         mc:Ignorable="d"
-        Title="Password Manager" Height="450" MinWidth="750" Width="750">
-    <Window.Resources>        
-        <Style x:Key="FocusVisual">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="OptionMarkFocusVisual">
-            <Setter Property="Control.Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Rectangle Margin="14,0,0,0" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
+        Title="Password Manager" Height="450" MinWidth="750" Width="750">    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -34,7 +14,7 @@
         </Grid.RowDefinitions>
         <Grid>
             <Border BorderThickness="2" BorderBrush="#373737" Height="30" CornerRadius="5" Width="200">
-                <TextBox Name="MainPasswordTxt" Text="{Binding MainPassword}" HorizontalAlignment="Stretch" Width="200"/>
+                <TextBox Name="MainPasswordTxt" Text="{Binding MainPassword}" HorizontalAlignment="Stretch" Width="200" VerticalAlignment="Stretch"/>
             </Border>
             <Button Width="200" HorizontalAlignment="Right" Command="{Binding VerifyPassword}" Margin="5" Style="{StaticResource PrettyButton}" IsEnabled="{Binding EnableButton}">
                 <Button.Content>
@@ -61,21 +41,20 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                 <CheckBox IsChecked="{Binding LowerCase}" VerticalAlignment="Center" Content="LowerCase"/>
-                    <CheckBox Style="{DynamicResource CheckBoxStyle1}" IsChecked="{Binding UpperCase}" VerticalAlignment="Center" Content="UpperCase" Grid.Row="1"/>
+                    <CheckBox IsChecked="{Binding UpperCase}" VerticalAlignment="Center" Content="UpperCase" Grid.Row="1"/>
                     <CheckBox IsChecked="{Binding Numbers}" VerticalAlignment="Center" Content="Numbers" Grid.Row="2"/>
                     <CheckBox IsChecked="{Binding Characters}" VerticalAlignment="Center" Content="Characters" Grid.Row="3"/>
                     <Label Content="Length : " Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
                     <Slider Minimum="10" Maximum="50" Grid.Column="1" Grid.Row="2" TickFrequency="1" IsSnapToTickEnabled="True" x:Name="LengthSlider" Value="{Binding Length}"/>
                     <TextBlock Text="{Binding ElementName=LengthSlider, Path=Value, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Center"/>
                 </Grid>                
-                <Border BorderThickness="2" BorderBrush="#373737" Height="30" CornerRadius="5" Width="355">
-                    <TextBox Text="{Binding GeneratedPassword}" HorizontalAlignment="Center" IsReadOnly="True" Width="355" Background="Gainsboro"/>
+                <Border BorderThickness="2" BorderBrush="#373737" Height="30" CornerRadius="5" Width="340">
+                    <TextBox Text="{Binding GeneratedPassword}" HorizontalAlignment="Center" IsReadOnly="True" Width="340" Background="Gainsboro"/>
                 </Border>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="2" Name="MainContent">
             <ContentControl Content="{Binding CurrentViewModel}"/>
         </Grid>
-
     </Grid>
 </Window>
