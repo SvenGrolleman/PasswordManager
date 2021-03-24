@@ -5,6 +5,7 @@ using PasswordManager.EventsManager;
 using PasswordManager.Extensions;
 using PasswordManager.HelperClasses;
 using PasswordManager.Models;
+using PasswordManager.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,7 +20,6 @@ namespace PasswordManager
 
         private readonly IPwRepository _repository;
         private byte[] _key;
-        public string VerifyButtonText { get; private set; }
         private string _generatedPassword;
         public string GeneratedPassword
         {
@@ -40,20 +40,49 @@ namespace PasswordManager
         public bool UpperCase { get; set; }
         public bool Numbers { get; set; }
         public bool Characters { get; set; }
-        private bool _enableButton;
 
-        public bool EnableButton
+        private bool _isEnabled;
+        public bool IsEnabled
         {
-            get { return _enableButton; }
+            get { return _isEnabled; }
             set
             {
-                if (_enableButton != value)
+                if (_isEnabled != value)
                 {
-                    _enableButton = value;
+                    _isEnabled = value;
                     OnPropertyChanged();
                 }
             }
         }
+
+        private bool _isReadOnly;
+        public bool IsReadOnly
+        {
+            get { return _isReadOnly; }
+            set
+            {
+                if (_isReadOnly != value)
+                {
+                    _isReadOnly = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        private string _verifyButtonText;
+        public string VerifyButtonText
+        {
+            get { return _verifyButtonText; }
+            set
+            {
+                if (_verifyButtonText != value)
+                {
+                    _verifyButtonText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         private string _mainPassword;
         public string MainPassword
@@ -70,7 +99,21 @@ namespace PasswordManager
         }
 
         public CommandBinder GeneratePassword { get; private set; }
-        public CommandBinder VerifyPassword { get; private set; }
+        //public CommandBinder VerifyPassword { get; private set; }
+
+        private CommandBinder _mainPasswordCommand;
+        public CommandBinder MainPasswordCommand
+        {
+            get { return _mainPasswordCommand; }
+            set
+            {
+                if (_mainPasswordCommand != value)
+                {
+                    _mainPasswordCommand = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private ContentControl _currentViewModel;
         public ContentControl CurrentViewModel
@@ -98,7 +141,8 @@ namespace PasswordManager
             _repository = repository;
             _eventHandler = eventHandler;
             Length = 10;
-            EnableButton = true;
+            IsReadOnly = false;
+            IsEnabled = true;
             SetUpCommands();
             SetUpVerifyButtonText();
             SetUpEventListeners();
@@ -106,10 +150,33 @@ namespace PasswordManager
 
         private void SetUpEventListeners()
         {
-            _eventHandler.Cancel += (s, e) => EditPasswordEntryCanceled();
+            _eventHandler.Cancel += (s, e) => EditCanceled();
             _eventHandler.CommitPassword += (s, e) => EditPasswordEntryCommited(e.PasswordEntryModel);
             _eventHandler.DeletePasswordEntry += (s, e) => DeletePasswordEntry(e.PasswordEntryModel);
             _eventHandler.EditPasswordEntryClicked += (s, e) => OnEditPasswordEntryClick(e.PasswordEntryModel);
+            _eventHandler.MainPasswordChanged += (s, e) => OnMainPasswordChanged(e.NewMainPassword);
+        }
+
+        private void OnMainPasswordChanged(string newMainPassword)
+        {
+            var currentMainPasswordId = _repository.GetMainPassword().MainId;
+            var saltByteArray = RfcEncryptor.GenerateSalt();
+            var encryptedByteArray = RfcEncryptor.HashWithSalt(newMainPassword.ToByteArrayFromString(), saltByteArray);
+            _repository.UpdateMainPassword(
+                new MainPassword
+                {
+                    MainId = currentMainPasswordId,
+                    MainSalt = saltByteArray.ToBase64FromByteArray(),
+                    Password = encryptedByteArray.ToBase64FromByteArray(),
+                });
+            //decrypt current passwordentries
+            var currentPasswordEntryModels = AESPasswordEntry.EntriesToEntryModels(_repository.GetPasswordEntries(), _key);
+            _key = RfcEncryptor.HashWithSalt(newMainPassword.ToByteArrayFromString(), saltByteArray, 1000);
+            //encrypt current passwordentrymodels with the new key
+            var passwordEntries = AESPasswordEntry.EntryModelsToEntries(currentPasswordEntryModels, _key);
+            _repository.UpdatePasswordEntries(passwordEntries);
+            CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
+            MainPassword = "New Main Password Succesfully Changed!";
         }
 
         private void DeletePasswordEntry(PasswordEntryModel passwordEntryModel)
@@ -149,10 +216,12 @@ namespace PasswordManager
                 _repository.UpdatePasswordEntry(passwordEntry);
                 CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
             }
+            IsEnabled = true;
         }
 
-        private void EditPasswordEntryCanceled()
+        private void EditCanceled()
         {
+            IsEnabled = true;
             CurrentViewModel = CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
         }
 
@@ -172,7 +241,7 @@ namespace PasswordManager
         private void SetUpCommands()
         {
             GeneratePassword = new CommandBinder(OnGeneratePassword);
-            VerifyPassword = new CommandBinder(OnVerifyPassword);
+            MainPasswordCommand = new CommandBinder(OnVerifyPassword);
         }
 
         private void OnGeneratePassword()
@@ -229,6 +298,7 @@ namespace PasswordManager
 
         private void OnEditPasswordEntryClick(PasswordEntryModel passwordEntryModel)
         {
+            IsEnabled = false;
             CurrentViewModel = new PasswordEditView(passwordEntryModel, _eventHandler);
         }
 
@@ -249,10 +319,11 @@ namespace PasswordManager
                     var succes = _repository.InsertMainPassword(mainPassword);
                     if (succes > 0)
                     {
-                        EnableButton = false;
                         _key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray, 1000);
                         CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
                         MainPassword = "Main password succesfully set!";
+                        IsReadOnly = true;
+
                     }
                 }
                 else
@@ -268,10 +339,12 @@ namespace PasswordManager
                     var encryptedByteArray = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64());
                     if (ByteArrayComparer.CompareByteArrays(storedMainPassword.Password.ToByteArrayFromBase64(), encryptedByteArray))
                     {
-                        EnableButton = false;
                         _key = RfcEncryptor.HashWithSalt(_mainPassword.ToByteArrayFromString(), saltByteArray.ToByteArrayFromBase64(), 1000);
                         CurrentViewModel = new PasswordListView(_eventHandler, _key, _repository);
                         MainPassword = "Succesfully verified!";
+                        MainPasswordCommand = new CommandBinder(OnChangeMainPassword);
+                        IsReadOnly = true;
+                        VerifyButtonText = "Change mainpassword";
                     }
                     else
                     {
@@ -279,6 +352,12 @@ namespace PasswordManager
                     }
                 }
             }
+        }
+
+        private void OnChangeMainPassword()
+        {
+            IsEnabled = false;
+            CurrentViewModel = new MainPasswordChangeView(_eventHandler);
         }
 
         public void OnPropertyChanged([CallerMemberName] string name = null)

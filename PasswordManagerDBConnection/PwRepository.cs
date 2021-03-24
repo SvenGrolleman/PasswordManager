@@ -58,6 +58,61 @@ namespace PasswordManager.Database
             return affectedRows;
         }
 
+        public int InsertMainPassword(MainPassword mainPassword)
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.InsertMainPassword(mainPassword, conn);
+                conn.Open();
+                affectedRows = comm.ExecuteNonQuery();
+                conn.Close();
+            }
+            return affectedRows;
+        }
+
+        public MainPassword GetMainPassword()
+        {
+
+            var mainPassword = new MainPassword();
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                conn.Open();
+                var comm = _commands.GetMainPassword(conn);
+
+                using (var sqlReader = comm.ExecuteReader())
+                {
+                    if (sqlReader.HasRows)
+                    {
+                        while (sqlReader.Read())
+                        {
+                            mainPassword = new MainPassword
+                            {
+                                MainId = sqlReader.GetInt16(0),
+                                Password = sqlReader.GetString(1),
+                                MainSalt = sqlReader.GetString(2),
+                            };
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return mainPassword;
+        }
+
+        public int UpdateMainPassword(MainPassword mainPassword)
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                var comm = _commands.UpdateMainPassword(mainPassword, conn);
+                conn.Open();
+                affectedRows = comm.ExecuteNonQuery();
+                conn.Close();
+            }
+            return affectedRows;
+        }
+
         public int InsertPasswordEntry(PasswordEntry entry)
         {
             int affectedRows = 0;
@@ -84,15 +139,46 @@ namespace PasswordManager.Database
             return affectedRows;
         }
 
-        public int InsertMainPassword(MainPassword mainPassword)
+        public int UpdatePasswordEntry(PasswordEntry entry)
         {
             int affectedRows = 0;
             using (var conn = new SqliteConnection(_connectionString))
             {
-                var comm = _commands.InsertMainPassword(mainPassword, conn);
+                var comm = _commands.UpdatePasswordEntry(entry, conn);
                 conn.Open();
                 affectedRows = comm.ExecuteNonQuery();
                 conn.Close();
+            }
+            return affectedRows;
+        }
+
+        public int UpdatePasswordEntries(IEnumerable<PasswordEntry> entries)
+        {
+            int affectedRows = 0;
+            using (var conn = new SqliteConnection(_connectionString))
+            {
+                conn.Open();
+                using (var trn = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        var comm = new SqliteCommand(_commands.UpdatePasswordEntryCommand);
+                        comm.Connection = conn;
+                        comm.Transaction = trn;
+                        foreach (var entry in entries)
+                        {
+                            comm.Parameters.AddRange(_commands.GetPasswordEntryUpdateParameters(entry));
+                            affectedRows += comm.ExecuteNonQuery();
+                            comm.Parameters.Clear();
+                        }
+                        trn.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        trn.Rollback();
+                        throw;
+                    }
+                }
             }
             return affectedRows;
         }
@@ -145,79 +231,6 @@ namespace PasswordManager.Database
                 }
             }
             return passwordEntries;
-        }
-
-        public MainPassword GetMainPassword()
-        {
-
-            var mainPassword = new MainPassword();
-            using (var conn = new SqliteConnection(_connectionString))
-            {
-                conn.Open();
-                var comm = _commands.GetMainPassword(conn);
-
-                using (var sqlReader = comm.ExecuteReader())
-                {
-                    if (sqlReader.HasRows)
-                    {
-                        while (sqlReader.Read())
-                        {
-                            mainPassword = new MainPassword
-                            {
-                                MainId = sqlReader.GetInt16(0),
-                                Password = sqlReader.GetString(1),
-                                MainSalt = sqlReader.GetString(2),
-                            };
-                        }
-                    }
-                }
-                conn.Close();
-            }
-            return mainPassword;
-        }
-
-        public int UpdatePasswordEntry(PasswordEntry entry)
-        {
-            int affectedRows = 0;
-            using (var conn = new SqliteConnection(_connectionString))
-            {
-                var comm = _commands.UpdatePasswordEntry(entry, conn);
-                conn.Open();
-                affectedRows = comm.ExecuteNonQuery();
-                conn.Close();
-            }
-            return affectedRows;
-        }
-
-        public int UpdatePasswordEntries(IEnumerable<PasswordEntry> entries)
-        {
-            int affectedRows = 0;
-            using (var conn = new SqliteConnection(_connectionString))
-            {
-                conn.Open();
-                using (var trn = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        var comm = new SqliteCommand(_commands.UpdatePasswordEntryCommand);
-                        comm.Connection = conn;
-                        comm.Transaction = trn;
-                        foreach (var entry in entries)
-                        {
-                            comm.Parameters.AddRange(_commands.GetPasswordEntryUpdateParameters(entry));
-                            affectedRows += comm.ExecuteNonQuery();
-                            comm.Parameters.Clear();
-                        }
-                        trn.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        trn.Rollback();
-                        throw;
-                    }
-                }
-            }
-            return affectedRows;
         }
 
         public int DeletePasswordEntry(PasswordEntry entry)

@@ -173,6 +173,7 @@ namespace PasswordManager.Database
                 CommandText = _updateMainPassword,
                 Connection = conn,
             };
+            comm.Parameters.AddWithValue($"@{_mainId}", mainPassword.MainId);
             comm.Parameters.AddWithValue($"@{_mainPassword}", mainPassword.Password);
             comm.Parameters.AddWithValue($"@{_mainSalt}", mainPassword.MainSalt);
             return comm;

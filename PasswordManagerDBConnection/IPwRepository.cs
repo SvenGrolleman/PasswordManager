@@ -16,5 +16,6 @@ namespace PasswordManager.Database
         int InsertPasswordEntry(PasswordEntry entry);
         int UpdatePasswordEntries(IEnumerable<PasswordEntry> entries);
         int UpdatePasswordEntry(PasswordEntry entry);
+        int UpdateMainPassword(MainPassword mainPassword);
     }
 }

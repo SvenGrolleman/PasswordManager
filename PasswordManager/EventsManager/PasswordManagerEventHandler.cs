@@ -14,6 +14,7 @@ namespace PasswordManager.EventsManager
         public event EventHandler Cancel;
         public event EventHandler<GenereratedPasswordEventArgs> PasswordGenerated;
         public event EventHandler<PasswordEntryEventArgs> DeletePasswordEntry;
+        public event EventHandler<NewMainPasswordEventArgs> MainPasswordChanged;
 
         public void OnEditPasswordEntryClicked(object sender, PasswordEntryModel passwordEntry)
         {
@@ -38,6 +39,11 @@ namespace PasswordManager.EventsManager
         public void OnDeletePasswordEntryClicked(object sender, PasswordEntryModel passwordEntryModel)
         {
             DeletePasswordEntry?.Invoke(sender, new PasswordEntryEventArgs { PasswordEntryModel = passwordEntryModel });
+        }
+
+        public void OnMainPasswordChanged(object sender, string newMainPassword)
+        {
+            MainPasswordChanged?.Invoke(sender, new NewMainPasswordEventArgs { NewMainPassword = newMainPassword });
         }
     }
 }

@@ -66,7 +66,7 @@ namespace PasswordManager.Models
 
         private void SetUpPasswords(byte[] key)
         {
-            foreach (var storedPassword in _repository.GetPasswordEntries())
+            foreach (var storedPassword in AESPasswordEntry.EntriesToEntryModels(_repository.GetPasswordEntries(), key))
             {
                 _passwordsBackup.Add(new PasswordListItemViewModel(_eventHandler, key, storedPassword));
             }

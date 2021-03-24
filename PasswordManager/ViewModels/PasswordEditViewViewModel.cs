@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
-using System.Globalization;
 
 namespace PasswordManager.ViewModels
 {
@@ -79,18 +77,6 @@ namespace PasswordManager.ViewModels
         public void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
-
-    public class StringRule : ValidationRule
-    {
-        public override ValidationResult Validate(object value, CultureInfo cultureInfo)
-        {
-            if (string.IsNullOrEmpty((string)value))
-            {
-                return new ValidationResult(false, "Field can't be empty.");
-            }
-            return ValidationResult.ValidResult;
         }
     }
 }

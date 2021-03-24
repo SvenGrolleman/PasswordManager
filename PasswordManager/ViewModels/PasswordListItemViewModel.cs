@@ -19,17 +19,10 @@ namespace PasswordManager.Models
         public CommandBinder EditPasswordEntry { get; private set; }
         public CommandBinder DeletePasswordEntry { get; private set; }
 
-        public PasswordListItemViewModel(PasswordManagerEventHandler eventHandler, byte[] Key, PasswordEntry passwordEntry)
+        public PasswordListItemViewModel(PasswordManagerEventHandler eventHandler, byte[] Key, PasswordEntryModel passwordEntryModel)
         {
             _eventHandler = eventHandler;
-            PasswordEntryModel = new PasswordEntryModel
-            {
-                PasswordEntryId = passwordEntry.PasswordEntryId,
-                Website = passwordEntry.Website,
-                Username = passwordEntry.Username,
-                Password = AESEncryptor.DecryptBytesToString(passwordEntry.Password.ToByteArrayFromBase64(), Key, passwordEntry.IV.ToByteArrayFromBase64()).ToStringFromByteArray(),
-            };
-            SetUpCommands();
+            PasswordEntryModel = passwordEntryModel;
         }
 
         private void SetUpCommands()

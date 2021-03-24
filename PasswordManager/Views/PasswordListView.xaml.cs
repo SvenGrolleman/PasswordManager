@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 using System.Security;
 using System.Windows.Controls;
 
-namespace PasswordManager
+namespace PasswordManager.Views
 {
     /// <summary>
     /// Interaction logic for PasswordListView.xaml
@@ -15,9 +15,7 @@ namespace PasswordManager
         public PasswordListView(PasswordManagerEventHandler eventHandler, byte[] key ,IPwRepository repository)
         {
             InitializeComponent();
-            var viewModel = new PasswordListViewViewModel(eventHandler,key, repository);
-
-            this.DataContext = viewModel;
+            this.DataContext = new PasswordListViewViewModel(eventHandler, key, repository);
         }
     }
 }

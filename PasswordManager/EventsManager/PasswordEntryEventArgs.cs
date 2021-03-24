@@ -20,4 +20,9 @@ namespace PasswordManager.EventsManager
     {
         public string GeneratedPassword { get; set; }
     }
+
+    public class NewMainPasswordEventArgs : EventArgs
+    {
+        public string NewMainPassword { get; set; }
+    }
 }

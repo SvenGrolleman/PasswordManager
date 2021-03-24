@@ -3,7 +3,7 @@ using PasswordManager.Models;
 using PasswordManager.ViewModels;
 using System.Windows.Controls;
 
-namespace PasswordManager
+namespace PasswordManager.Views
 {
     /// <summary>
     /// Interaction logic for PasswordEditView.xaml
